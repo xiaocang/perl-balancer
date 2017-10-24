@@ -4,9 +4,24 @@ package Clib;
 use strict;
 use warnings;
 use String::CRC32;
-use Exporter;
+use Exporter 'import';
 
 use Smart::Comments;
+
+our @EXPORT = qw(
+    chash_point_init
+    chash_point_sort
+    chash_point_add
+    chash_point_delete
+    chash_point_reduce
+
+    calloc_chash_point_t
+);
+
+our @EXPORT_OK = qw(
+    crc32_update
+    chash_point_init_crc
+);
 
 sub calloc_chash_point_t($);
 

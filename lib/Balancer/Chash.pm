@@ -81,7 +81,7 @@ our $crc32_table256 = [
 
 sub calloc_chash_point_t($) {
     my $num = shift;
-    return [map { +{hash => 0, id => 0} } $num];
+    return [map { +{hash => 0, id => 0} } (1..$num)];
 }
 
 sub crc32_update(\$\@$) {
@@ -132,7 +132,7 @@ sub chash_point_init_crc(\@$$$$$) {
 }
 
 sub chash_point_init(\@$$$$) {
-    my ($_arr, $start, $base_hash, $num, $id) = @_;
+    my ($_arr, $base_hash, $start, $num, $id) = @_;
     chash_point_init_crc(@{$_arr}, $start, $base_hash, 0, $num, $id);
 }
 
@@ -154,9 +154,11 @@ sub chash_point_sort(\@$) {
 
     for ($i = 0; $i < $n; $i++) {
         $node = $_arr->[$i];
+        next unless $node;
         my $index = $node->{hash} / $step;
 
         for ($end = $index; $end >= 0; $end--) {
+            next unless $points->[$end];
             if ($points->[$end]->{id} == 0) {
                 goto insert;
             }
@@ -193,6 +195,7 @@ sub chash_point_sort(\@$) {
 
         # full before index, try to append
         for ($end = $end + 1; $end < $m; $end++) {
+            next unless $points->[$end];
             if ($points->[$end]->{id} == 0) {
                 goto insert;
             }
@@ -221,7 +224,7 @@ sub chash_point_sort(\@$) {
 
     $j = 0;
     for ($i = 0; $i < $m; $i++) {
-        if ($points->[$i]->{id} != 0) {
+        if ($points->[$i] && $points->[$i]->{id} != 0) {
             $_arr->[$j]->{id}   = $points->[$i]->{id};
             $_arr->[$j]->{hash} = $points->[$i]->{hash};
             $j++;

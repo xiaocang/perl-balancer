@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-package Clib;
+package Balancer::Chash;
 
 use strict;
 use warnings;

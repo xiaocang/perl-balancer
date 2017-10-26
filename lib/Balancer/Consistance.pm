@@ -55,8 +55,9 @@ sub _precompute($) {
         my $num       = $weight * CONSISTENT_POINTS;
         my $base_hash = crc32($id) ^ 0xffffffff;
 
-        $ids->[$index ++] = $id;
+        $ids->[$index] = $id;
 
+        $index ++;
         chash_point_init(@$points, $base_hash, $start, $num, $index);
 
         $start += $num;
@@ -225,10 +226,10 @@ sub _find_id($$$) {
     }
 
     # find the first points >= hash
-    if ($points->[$index - 1]->{hash} >= $hash) {
+    if ($points->[$index]->{hash} >= $hash) {
         for (my $i = $index; $i >= 1; $i--) {
-            if ($points->[($i - 1) - 1]->{hash} < $hash) {
-                return ($points->[$i - 1]->{id}, $i);
+            if ($points->[$i - 1]->{hash} < $hash) {
+                return ($points->[$i]->{id}, $i);
             }
         }
 
@@ -237,7 +238,7 @@ sub _find_id($$$) {
 
     for (my $i = $index + 1; $i <= $max_index; $i++) {
         if ($hash <= $points->[$i]->{hash}) {
-            return ($points->[$i - 1]->{id}, $i);
+            return ($points->[$i]->{id}, $i);
         }
     }
 

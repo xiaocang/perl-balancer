@@ -25,12 +25,11 @@ for my $i (1..100000) {
 
     $res->{$id} ++;
 }
-### $res
 
-# # --- response_body
-# ok($res->{server2} == 14743);
-# ok($res->{server1} == 77075);
-# ok($res->{server3} == 8182);
-# ok($chash->npoints == 2080);
+# --- response_body
+ok($res->{server2} == 14743);
+ok($res->{server1} == 77075);
+ok($res->{server3} == 8182);
+ok($chash->npoints == 2080);
 
 done_testing();

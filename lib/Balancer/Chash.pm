@@ -91,7 +91,7 @@ sub crc32_update(\$\@$) {
 
     my $_p_index = 0;
     while ($len--) {
-        $c = $crc32_table256->[($c ^ $_p->[$_p_index++]) & 0xff] ^ ($c >> 8);
+        $$c = $crc32_table256->[($$c ^ $_p->[$_p_index++]) & 0xff] ^ ($$c >> 8);
     }
 
     $_crc = $c;
@@ -105,6 +105,7 @@ sub chash_point_init_crc(\@$$$$$) {
     my $prev_hash = {value => 0, byte => [0x00, 0x00, 0x00, 0x00]};
 
     $node = $_arr->[$start];
+    my $node_index = $start;
 
     for (my $i = 0; $i < $from + $num; $i++) {
         my $hash = $base_hash;
@@ -113,14 +114,14 @@ sub chash_point_init_crc(\@$$$$$) {
         # PERL: chash_final
         $hash ^= 0xffffffff;
 
-        if ($i > $from) {
+        if ($i >= $from) {
             $node->{hash} = $hash;
             $node->{id}   = $id;
 
             # PERL: set value back
-            $_arr->[$start] = $node;
+            $_arr->[$node_index] = $node;
 
-            $node         = $_arr->[$start + 1];
+            $node         = $_arr->[++$node_index];
         }
 
         # this only works when have little endian
@@ -139,7 +140,6 @@ sub chash_point_init(\@$$$$) {
 sub chash_point_sort(\@$) {
     my ($_arr, $n) = @_;
 
-    my $points = [];
     my $node   = {};
     my ($i, $j, $index, $start, $end);
 
@@ -151,14 +151,13 @@ sub chash_point_sort(\@$) {
     }
 
     my $step = (2**32) / $m;
+    my $points = calloc_chash_point_t($m);
 
     for ($i = 0; $i < $n; $i++) {
         $node = $_arr->[$i];
-        next unless $node;
         my $index = $node->{hash} / $step;
 
         for ($end = $index; $end >= 0; $end--) {
-            next unless $points->[$end];
             if ($points->[$end]->{id} == 0) {
                 goto insert;
             }
@@ -195,7 +194,6 @@ sub chash_point_sort(\@$) {
 
         # full before index, try to append
         for ($end = $end + 1; $end < $m; $end++) {
-            next unless $points->[$end];
             if ($points->[$end]->{id} == 0) {
                 goto insert;
             }

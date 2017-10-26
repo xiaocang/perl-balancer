@@ -81,7 +81,7 @@ our $crc32_table256 = [
 
 sub calloc_chash_point_t($) {
     my $num = shift;
-    return [map { +{hash => 0, id => 0} } (1..$num)];
+    return [map { +{hash => 0, id => 0} } (1 .. $num)];
 }
 
 sub crc32_update(\$\@$) {
@@ -121,7 +121,7 @@ sub chash_point_init_crc(\@$$$$$) {
             # PERL: set value back
             $_arr->[$node_index] = $node;
 
-            $node         = $_arr->[++$node_index];
+            $node = $_arr->[++$node_index];
         }
 
         # this only works when have little endian
@@ -140,7 +140,7 @@ sub chash_point_init(\@$$$$) {
 sub chash_point_sort(\@$) {
     my ($_arr, $n) = @_;
 
-    my $node   = {};
+    my $node = {};
     my ($i, $j, $index, $start, $end);
 
     my $min_sz = $n * 1.6;
@@ -150,7 +150,7 @@ sub chash_point_sort(\@$) {
         $m *= 2;
     }
 
-    my $step = (2**32) / $m;
+    my $step   = (2**32) / $m;
     my $points = calloc_chash_point_t($m);
 
     for ($i = 0; $i < $n; $i++) {
@@ -255,11 +255,11 @@ sub chash_point_add(\@$$$$$\@) {
 
         $_new_points->[$k]->{hash} = $_old_points->[$i]->{hash};
         $_new_points->[$k]->{id}   = $_old_points->[$i]->{id};
+    }
 
-        for (; $j >= 0; $j--, $k--) {
-            $_new_points->[$k]->{hash} = $tmp_points->[$j]->{hash};
-            $_new_points->[$k]->{id}   = $tmp_points->[$j]->{id};
-        }
+    for (; $j >= 0; $j--, $k--) {
+        $_new_points->[$k]->{hash} = $tmp_points->[$j]->{hash};
+        $_new_points->[$k]->{id}   = $tmp_points->[$j]->{id};
     }
 }
 

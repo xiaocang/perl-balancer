@@ -16,7 +16,9 @@ our @EXPORT = qw(
     reinit
     set
     find
-    next
+    _next
+    incr
+    decr
 );
 
 # local
@@ -28,12 +30,12 @@ sub new($$);
 sub reinit($$);
 sub set($$$);
 sub find($$);
-sub next($$);
+sub _next($$);
+sub incr($$$);
+sub decr($$$);
 
 # local obj
 sub _delete($$);
-sub _incr($$$);
-sub _decr($$$);
 
 sub _precompute($) {
     my $nodes = shift;
@@ -57,7 +59,7 @@ sub _precompute($) {
 
         $ids->[$index] = $id;
 
-        $index ++;
+        $index++;
         chash_point_init(@$points, $base_hash, $start, $num, $index);
 
         $start += $num;
@@ -105,7 +107,7 @@ sub _delete($$) {
     my $index = 1;
 
     # find the index: O(n)
-    while ($ids->[$index - 1] != $id) {
+    while ($ids->[$index - 1] ne $id) {
         $index++;
     }
 
@@ -119,10 +121,11 @@ sub _delete($$) {
     $self->{npoints} -= CONSISTENT_POINTS * $old_weight;
 }
 
-sub _incr($$$) {
+sub incr($$$) {
     my $self = shift;
     my ($id, $weight) = @_;
 
+    $weight ||= 1;
     $weight = int($weight) || 1;
     my $nodes      = $self->{nodes};
     my $ids        = $self->{ids};
@@ -132,21 +135,23 @@ sub _incr($$$) {
     if ($old_weight) {
 
         # find the index: O(n)
-        while ($ids->[$index - 1] != $id) {
+        while ($ids->[$index - 1] ne $id) {
             $index++;
         }
     }
     else {
         $old_weight = 0;
 
-        $index = scalar($ids) + 1;
-        $ids->[$index - 1] = $id;
+        # $index = scalar($ids) + 1;
+        # $ids->[$index - 1] = $id;
+        # PERL
+        push @$ids, $id;
     }
 
     $nodes->{$id} = $old_weight + $weight;
 
     my $new_points  = $self->{points};
-    my $new_npoints = $self->{new_npoints} + $weight * CONSISTENT_POINTS;
+    my $new_npoints = $self->{npoints} + $weight * CONSISTENT_POINTS;
     if ($self->{size} < $new_npoints) {
         $new_points = calloc_chash_point_t($new_npoints);
         $self->{size} = $new_npoints;
@@ -154,7 +159,8 @@ sub _incr($$$) {
 
     my $base_hash = crc32("${id}") ^ 0xffffffff;
     chash_point_add(
-        @{$self->{points}}, $self->{npoints}, $base_hash,
+        @{$self->{points}},
+        $self->{npoints}, $base_hash,
         $old_weight * CONSISTENT_POINTS,
         $weight * CONSISTENT_POINTS,
         $index, @$new_points
@@ -164,10 +170,11 @@ sub _incr($$$) {
     $self->{npoints} = $new_npoints;
 }
 
-sub _decr($$$) {
+sub decr($$$) {
     my $self = shift;
     my ($id, $weight) = @_;
 
+    $weight ||= 1;
     $weight = int($weight) || 1;
     my $nodes      = $self->{nodes};
     my $ids        = $self->{ids};
@@ -182,13 +189,14 @@ sub _decr($$$) {
     my $index = 1;
 
     # find the index: O(n)
-    while ($ids->[$index - 1] != $id) {
+    while ($ids->[$index - 1] ne $id) {
         $index++;
     }
 
     my $base_hash = crc32("${id}") ^ 0xffffffff;
     chash_point_reduce(
-        @{$self->{points}}, $self->{npoints}, $base_hash,
+        @{$self->{points}},
+        $self->{npoints}, $base_hash,
         ($old_weight - $weight) * CONSISTENT_POINTS,
         CONSISTENT_POINTS * $weight, $index
     );
@@ -206,10 +214,10 @@ sub set($$$) {
 
     return 1 if $old_weight == $new_weight;
 
-    return $self->_incr($id, $new_weight - $old_weight)
+    return $self->incr($id, $new_weight - $old_weight)
         if $old_weight < $new_weight;
 
-    return $self->_decr($id, $old_weight - $new_weight);
+    return $self->decr($id, $old_weight - $new_weight);
 }
 
 sub _find_id($$$) {
@@ -260,7 +268,7 @@ sub _next($$) {
     my $self  = shift;
     my $index = shift;
 
-    my $new_index = ($index + 1) % $self->npoints;
+    my $new_index = ($index + 1) % $self->{npoints};
     my $id        = $self->{points}->[$new_index - 1]->{id};
 
     return $self->{ids}->[$id - 1], $new_index;

@@ -2,9 +2,8 @@ use strict;
 use warnings;
 use Test::More;
 use lib './lib';
-use Smart::Comments;
 
-require_ok("Balancer::Consistance");
+require_ok("Resty::Balancer::Consistance");
 
 # TEST 1: find
 # ===
@@ -17,7 +16,7 @@ require_ok("Balancer::Consistance");
         server3 => 1
     };
 
-    my $chash = Balancer::Consistance->new($servers);
+    my $chash = Resty::Balancer::Consistance->new($servers);
 
     my $res = {};
 
@@ -46,7 +45,7 @@ require_ok("Balancer::Consistance");
         server3 => 1
     };
 
-    my $chash = Balancer::Consistance->new($servers);
+    my $chash = Resty::Balancer::Consistance->new($servers);
 
     my ($id, $idx) = $chash->find("foo");
 
@@ -68,7 +67,7 @@ require_ok("Balancer::Consistance");
         server3 => 1
     };
 
-    my $chash = Balancer::Consistance->new($servers);
+    my $chash = Resty::Balancer::Consistance->new($servers);
 
     my $num = 100 * 1000;
 

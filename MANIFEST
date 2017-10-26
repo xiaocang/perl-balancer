@@ -1,0 +1,7 @@
+lib/Resty/Balancer.pm
+lib/Resty/Balancer/Chash.pm
+lib/Resty/Balancer/Consistance.pm
+Makefile.PL
+MANIFEST
+README.md
+t/chash.t

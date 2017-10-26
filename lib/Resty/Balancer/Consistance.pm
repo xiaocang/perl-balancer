@@ -1,25 +1,13 @@
 #!/usr/bin/env perl
-package Balancer::Consistance;
+package Resty::Balancer::Consistance;
 
 use strict;
 use warnings;
 use String::CRC32;
-use Smart::Comments;
-use Exporter 'import';
 use POSIX;
-use Balancer::Chash;
+use Resty::Balancer::Chash;
 
 use constant {CONSISTENT_POINTS => 160, POW32 => 2**32};
-
-our @EXPORT = qw(
-    new
-    reinit
-    set
-    find
-    _next
-    incr
-    decr
-);
 
 # local
 sub _precompute($);

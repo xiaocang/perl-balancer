@@ -1,12 +1,10 @@
 #!/usr/bin/env perl
-package Balancer::Chash;
+package Resty::Balancer::Chash;
 
 use strict;
 use warnings;
 use String::CRC32;
 use Exporter 'import';
-
-use Smart::Comments;
 
 our @EXPORT = qw(
     chash_point_init

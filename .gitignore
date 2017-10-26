@@ -1,0 +1,5 @@
+cscope.*
+MANIFEST.*
+Makefile
+temp/
+MYMETA.*
